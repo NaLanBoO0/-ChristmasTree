@@ -1,0 +1,7 @@
+{
+  "name": "Cinematic Gesture Christmas Tree",
+  "description": "A high-end 3D Christmas tree experience controlled by hand gestures. Use a fist to fold, open palm to scatter, and pinch to zoom into photos.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
