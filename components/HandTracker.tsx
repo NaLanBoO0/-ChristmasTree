@@ -11,41 +11,27 @@ const HandTracker: React.FC<Props> = ({ onUpdate }) => {
   const handsRef = useRef<any>(null);
   const cameraRef = useRef<any>(null);
   const lastFrameTime = useRef<number>(0);
-  
   const onUpdateRef = useRef(onUpdate);
+
   useEffect(() => {
     onUpdateRef.current = onUpdate;
   }, [onUpdate]);
 
   const smoothPos = useRef({ x: 0.5, y: 0.5, z: 0.0 });
-  const lerpAmount = 0.2; // 稍微提高响应速度，使推拉更跟手
+  const lerpAmount = 0.2;
 
   useEffect(() => {
     let isMounted = true;
 
-    const initializeMediaPipe = async () => {
-      const mpHands = (window as any).Hands;
-      const mpCamera = (window as any).Camera;
-
-      if (!mpHands || !mpCamera) {
-          const handsScript = document.createElement('script');
-          handsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-          document.head.appendChild(handsScript);
-
-          const cameraScript = document.createElement('script');
-          cameraScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-          document.head.appendChild(cameraScript);
-
-          await Promise.all([
-            new Promise(resolve => { handsScript.onload = resolve; }),
-            new Promise(resolve => { cameraScript.onload = resolve; })
-          ]);
-      }
-
-      if (!isMounted) return;
-
+    const startTracking = async () => {
+      // Access globals loaded in index.html
       const HandsClass = (window as any).Hands;
       const CameraClass = (window as any).Camera;
+
+      if (!HandsClass || !CameraClass) {
+        console.error("MediaPipe not loaded from global scripts.");
+        return;
+      }
 
       const hands = new HandsClass({
         locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
@@ -63,8 +49,6 @@ const HandTracker: React.FC<Props> = ({ onUpdate }) => {
         if (!isMounted || !results.multiHandLandmarks || results.multiHandLandmarks.length === 0) return;
         
         const landmarks = results.multiHandLandmarks[0];
-        
-        // 关键点平滑 - 使用第9号点（中指指根）作为定位中心，因为它最稳定
         const rawX = landmarks[9].x;
         const rawY = landmarks[9].y;
         const rawZ = landmarks[9].z;
@@ -73,7 +57,6 @@ const HandTracker: React.FC<Props> = ({ onUpdate }) => {
         smoothPos.current.y += (rawY - smoothPos.current.y) * lerpAmount;
         smoothPos.current.z += (rawZ - smoothPos.current.z) * lerpAmount;
 
-        // 手势检测逻辑
         const palmBase = landmarks[0];
         const fingerTips = [8, 12, 16, 20];
         const fingerBases = [5, 9, 13, 17];
@@ -106,16 +89,12 @@ const HandTracker: React.FC<Props> = ({ onUpdate }) => {
         const camera = new CameraClass(videoRef.current, {
           onFrame: async () => {
             if (!isMounted || !handsRef.current || !videoRef.current) return;
-            
             const now = performance.now();
             if (now - lastFrameTime.current < 40) return; 
             lastFrameTime.current = now;
-
             try {
               await handsRef.current.send({ image: videoRef.current });
-            } catch (e) {
-              console.warn("Hand processing skipped", e);
-            }
+            } catch (e) {}
           },
           width: 320,
           height: 240,
@@ -125,7 +104,7 @@ const HandTracker: React.FC<Props> = ({ onUpdate }) => {
       }
     };
 
-    initializeMediaPipe();
+    startTracking();
 
     return () => {
       isMounted = false;

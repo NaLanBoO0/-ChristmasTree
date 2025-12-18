@@ -7,9 +7,15 @@
     <title>张布拉的圣诞树 - 手势交互体验</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Static loading of MediaPipe to prevent React hydration conflicts -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+
     <style>
         body { margin: 0; overflow: hidden; background: #000000; color: white; font-family: 'Inter', sans-serif; }
         canvas { touch-action: none; }
+        #root { width: 100vw; height: 100vh; }
         .gold-text {
             font-family: 'Noto Serif SC', serif;
             background: linear-gradient(to bottom, #fff7ad 0%, #ffa700 50%, #ff5e00 100%);
@@ -22,21 +28,26 @@
 <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+    "three": "https://esm.sh/three@0.169.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.17.10?external=react,react-dom,three",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@9.114.0?external=react,react-dom,three,@react-three/fiber",
+    "@react-three/postprocessing": "https://esm.sh/@react-three/postprocessing@2.16.2?external=react,react-dom,three,@react-three/fiber",
+    "lucide-react": "https://esm.sh/lucide-react@0.454.0?external=react",
+    "gsap": "https://esm.sh/gsap@3.12.5",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "three": "https://esm.sh/three@^0.182.0",
-    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.4.2",
-    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
-    "@react-three/postprocessing": "https://esm.sh/@react-three/postprocessing@^3.0.4",
-    "gsap": "https://esm.sh/gsap@^3.14.2",
-    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.7.7",
-    "this": "https://esm.sh/this@^1.1.0"
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
 </head>
 <body>
     <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Bloom, EffectComposer, Noise, Vignette } from '@react-three/postprocessing';
-import HandTracker from './components/HandTracker';
-import Experience from './components/Experience';
-import { TreeState, HandData } from './types';
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
+import HandTracker from './components/HandTracker.tsx';
+import Experience from './components/Experience.tsx';
+import { TreeState, HandData } from './types.ts';
 import { Upload, Hand, Sparkles, Move } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -28,11 +28,9 @@ const App: React.FC = () => {
   };
 
   const onHandUpdate = useCallback((data: HandData) => {
-    // 1. 位置更新节流：只有移动超过一定像素才更新状态
     const dist = Math.hypot(data.position.x - lastHandPos.current.x, data.position.y - lastHandPos.current.y);
     const hasMovedSignificantly = dist > 0.005;
 
-    // 2. 状态变化检查
     const newState = (() => {
       if (data.isFist) return TreeState.FOLDED;
       if (data.isPinching) return TreeState.ZOOMED;
@@ -48,7 +46,6 @@ const App: React.FC = () => {
       
       if (stateChanged) setGameState(newState);
 
-      // 处理悬停逻辑
       if (newState === TreeState.SCATTERED) {
         const total = photos.length > 0 ? photos.length : 8;
         const idx = Math.floor((1 - data.position.x) * total);
@@ -56,7 +53,6 @@ const App: React.FC = () => {
         if (clampedIdx !== hoverIdx) setHoverIdx(clampedIdx);
       }
 
-      // 处理捏合后的照片切换
       if (data.isPinching && newState === TreeState.ZOOMED) {
         if (!isPinchingRef.current) {
           pinchStartX.current = data.position.x;
@@ -86,7 +82,7 @@ const App: React.FC = () => {
       <Canvas
         shadows
         camera={{ position: [0, 2, 12], fov: 40 }}
-        gl={{ antialias: false, powerPreference: "high-performance" }} // 关闭抗锯齿以换取帧率
+        gl={{ antialias: false, powerPreference: "high-performance" }}
       >
         <color attach="background" args={['#000000']} />
         <Experience 
